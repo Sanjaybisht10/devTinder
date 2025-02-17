@@ -46,7 +46,7 @@ authRouter.post("/login", async(req,res)=>{
                 expires: new Date(Date.now()+ 8 * 360000),
             });
 
-            res.send("Login successfully");
+            res.send(user);
         }else{
             throw new Error("Password is not correct");
         }
