@@ -4,7 +4,6 @@ const userRouter = express.Router();
 const {userAuth} = require("../middleware/auth");
 const ConnectionRequest = require("../models/connectionRequest");
 const User = require("../models/user");
-const { set } = require("mongoose");
 
 const USER_SAFE_DATA = "firstName lastName photoUrl about age gender skills "; 
 
@@ -36,10 +35,11 @@ userRouter.get("/user/connections" , userAuth, async(req,res)=>{
                 {receiverId:loggedInUser._id,status:"accepted"},
                 {senderId:loggedInUser._id,status:"accepted"}
             ],
-        }).populate("senderId",USER_SAFE_DATA);
+        }).populate("senderId",USER_SAFE_DATA)
+        .populate("receiverId",USER_SAFE_DATA);
 
         const data = connectionRequests.map((row)=>{
-            if(senderId._id.toString()===loggedInUser._id.toString()){
+            if(row.senderId._id.toString()===loggedInUser._id.toString()){
                 return row.receiverId;
             }
             return row.senderId;
@@ -68,7 +68,7 @@ userRouter.get("/feed", userAuth, async(req,res)=>{
             ],
         }).select("senderId receiverId");
 
-        const hideFromUserFeed = new set();
+        const hideFromUserFeed = new Set();
         connectionRequests.forEach((req)=>{
             hideFromUserFeed.add(req.senderId.toString());
             hideFromUserFeed.add(req.receiverId.toString());
